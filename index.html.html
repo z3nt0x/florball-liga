@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<title>Florbal Liga Manager</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#0b1220;
+color:white;
+margin:0;
+}
+
+header{
+background:#111827;
+padding:20px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+letter-spacing:2px;
+}
+
+.container{
+width:95%;
+margin:auto;
+margin-top:20px;
+}
+
+.section{
+background:#111827;
+padding:20px;
+border-radius:10px;
+margin-bottom:25px;
+}
+
+h2{
+border-bottom:2px solid #22c55e;
+padding-bottom:5px;
+}
+
+.team-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-top:10px;
+}
+
+.team{
+background:#1f2937;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+.team img{
+width:80px;
+height:80px;
+object-fit:contain;
+}
+
+.players{
+font-size:14px;
+margin-top:10px;
+}
+
+input{
+padding:8px;
+margin:4px;
+border:none;
+border-radius:5px;
+}
+
+button{
+padding:8px 15px;
+background:#22c55e;
+border:none;
+border-radius:5px;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+border:1px solid #374151;
+padding:8px;
+text-align:center;
+}
+
+th{
+background:#1f2937;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+🏑 Florbal Liga Manager
+</header>
+
+<div class="container">
+
+<div class="section">
+
+<h2>Tímy</h2>
+
+<div class="team-grid">
+
+<div class="team">
+<img src="blesky.png">
+<h3>Oranžové Blesky</h3>
+<div class="players">
+Palo<br>
+Jakub<br>
+Tomáš
+</div>
+</div>
+
+<div class="team">
+<img src="dela.png">
+<h3>FC Častkovské Delá</h3>
+<div class="players">
+Marco<br>
+Oliver<br>
+Simon
+</div>
+</div>
+
+<div class="team">
+<img src="rangers.png">
+<h3>Podolie Rangers</h3>
+<div class="players">
+Rišo<br>
+Lukáš<br>
+Dano
+</div>
+</div>
+
+<div class="team">
+<img src="kapri.png">
+<h3>FK Častkovský Kapri</h3>
+<div class="players">
+Matej<br>
+David<br>
+Jakub D.
+</div>
+</div>
+
+<div class="team">
+<img src="florbalteam.png">
+<h3>Florbal Team</h3>
+<div class="players">
+Marko<br>
+Lukáš<br>
+Roman
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<h2>Pridať zápas</h2>
+
+<input id="team1" placeholder="Tím 1">
+<input id="score1" type="number" placeholder="Góly">
+
+<input id="team2" placeholder="Tím 2">
+<input id="score2" type="number" placeholder="Góly">
+
+<button onclick="addMatch()">Pridať zápas</button>
+
+<table>
+
+<tr>
+<th>Tím 1</th>
+<th>Skóre</th>
+<th>Tím 2</th>
+<th>Víťaz</th>
+</tr>
+
+<tbody id="matches"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="section">
+
+<h2>Top strelci</h2>
+
+<input id="scorer" placeholder="Hráč">
+<input id="goals" type="number" placeholder="Góly">
+
+<button onclick="addScorer()">Pridať</button>
+
+<table>
+
+<tr>
+<th>Hráč</th>
+<th>Góly</th>
+</tr>
+
+<tbody id="scorers"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="section">
+
+<h2>Prestupy hráčov</h2>
+
+<input id="player" placeholder="Hráč">
+<input id="from" placeholder="Z tímu">
+<input id="to" placeholder="Do tímu">
+
+<button onclick="addTransfer()">Pridať</button>
+
+<table>
+
+<tr>
+<th>Hráč</th>
+<th>Z tímu</th>
+<th>Do tímu</th>
+</tr>
+
+<tbody id="transfers"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let matches=JSON.parse(localStorage.getItem("matches")||"[]")
+let scorers=JSON.parse(localStorage.getItem("scorers")||"[]")
+let transfers=JSON.parse(localStorage.getItem("transfers")||"[]")
+
+function save(){
+localStorage.setItem("matches",JSON.stringify(matches))
+localStorage.setItem("scorers",JSON.stringify(scorers))
+localStorage.setItem("transfers",JSON.stringify(transfers))
+}
+
+function render(){
+
+let m=""
+matches.forEach(x=>{
+m+=`<tr><td>${x.t1}</td><td>${x.s1}:${x.s2}</td><td>${x.t2}</td><td>${x.w}</td></tr>`
+})
+
+matchesTable.innerHTML=m
+
+
+let s=""
+scorers.sort((a,b)=>b.g-a.g)
+
+scorers.forEach(x=>{
+s+=`<tr><td>${x.p}</td><td>${x.g}</td></tr>`
+})
+
+scorersTable.innerHTML=s
+
+
+let t=""
+
+transfers.forEach(x=>{
+t+=`<tr><td>${x.p}</td><td>${x.f}</td><td>${x.t}</td></tr>`
+})
+
+transfersTable.innerHTML=t
+
+}
+
+function addMatch(){
+
+let t1=team1.value
+let t2=team2.value
+let s1=parseInt(score1.value)
+let s2=parseInt(score2.value)
+
+let w="Remíza"
+
+if(s1>s2) w=t1
+if(s2>s1) w=t2
+
+matches.push({t1,t2,s1,s2,w})
+
+save()
+render()
+
+}
+
+function addScorer(){
+
+scorers.push({
+p:scorer.value,
+g:parseInt(goals.value)
+})
+
+save()
+render()
+
+}
+
+function addTransfer(){
+
+transfers.push({
+p:player.value,
+f:from.value,
+t:to.value
+})
+
+save()
+render()
+
+}
+
+const matchesTable=document.getElementById("matches")
+const scorersTable=document.getElementById("scorers")
+const transfersTable=document.getElementById("transfers")
+
+render()
+
+</script>
+
+</body>
+</html><script>
+
+let matches = [
+{t1:"FK Častkovský Kapri",t2:"FC Častkovské Delá",s1:3,s2:5,w:"FC Častkovské Delá"},
+{t1:"FK Častkovský Kapri",t2:"Florbal Team",s1:3,s2:4,w:"Florbal Team (po predĺžení)"},
+{t1:"FC Častkovské Delá",t2:"Florbal Team",s1:3,s2:5,w:"Florbal Team"}
+]
+
+let scorers=JSON.parse(localStorage.getItem("scorers")||"[]")
+let transfers=JSON.parse(localStorage.getItem("transfers")||"[]")
+
+function save(){
+localStorage.setItem("matches",JSON.stringify(matches))
+localStorage.setItem("scorers",JSON.stringify(scorers))
+localStorage.setItem("transfers",JSON.stringify(transfers))
+}
+
+function render(){
+
+let m=""
+matches.forEach(x=>{
+m+=`<tr><td>${x.t1}</td><td>${x.s1}:${x.s2}</td><td>${x.t2}</td><td>${x.w}</td></tr>`
+})
+
+matchesTable.innerHTML=m
+
+let s=""
+scorers.sort((a,b)=>b.g-a.g)
+
+scorers.forEach(x=>{
+s+=`<tr><td>${x.p}</td><td>${x.g}</td></tr>`
+})
+
+scorersTable.innerHTML=s
+
+let t=""
+transfers.forEach(x=>{
+t+=`<tr><td>${x.p}</td><td>${x.f}</td><td>${x.t}</td></tr>`
+})
+
+transfersTable.innerHTML=t
+
+}
+
+function addMatch(){
+
+let t1=team1.value
+let t2=team2.value
+let s1=parseInt(score1.value)
+let s2=parseInt(score2.value)
+
+let w="Remíza"
+
+if(s1>s2) w=t1
+if(s2>s1) w=t2
+
+matches.push({t1,t2,s1,s2,w})
+
+save()
+render()
+
+}
+
+function addScorer(){
+
+scorers.push({
+p:scorer.value,
+g:parseInt(goals.value)
+})
+
+save()
+render()
+
+}
+
+function addTransfer(){
+
+transfers.push({
+p:player.value,
+f:from.value,
+t:to.value
+})
+
+save()
+render()
+
+}
+
+const matchesTable=document.getElementById("matches")
+const scorersTable=document.getElementById("scorers")
+const transfersTable=document.getElementById("transfers")
+
+render()
+
+</script>
+<script>
+
+let matches = [
+  {t1:"FK Častkovský Kapri", s1:3, t2:"FC Častkovské Delá", s2:5, w:"FC Častkovské Delá"},
+  {t1:"FK Častkovský Kapri", s1:3, t2:"Florbal Team", s2:4, w:"Florbal Team"},
+  {t1:"FC Častkovské Delá", s1:3, t2:"Florbal Team", s2:5, w:"Florbal Team"}
+];
+
+let scorers = []; // môžeš doplniť neskôr
+let transfers = []; // môžeš doplniť neskôr
+
+function save(){
+  localStorage.setItem("matches", JSON.stringify(matches));
+  localStorage.setItem("scorers", JSON.stringify(scorers));
+  localStorage.setItem("transfers", JSON.stringify(transfers));
+}
+
+const matchesTable = document.getElementById("matches");
+const scorersTable = document.getElementById("scorers");
+const transfersTable = document.getElementById("transfers");
+
+function render(){
+
+  // Zápasy
+  let m = "";
+  matches.forEach(x=>{
+    m += `<tr><td>${x.t1}</td><td>${x.s1}:${x.s2}</td><td>${x.t2}</td><td>${x.w}</td></tr>`;
+  });
+  matchesTable.innerHTML = m;
+
+  // Top strelci
+  let s = "";
+  scorers.sort((a,b)=>b.g - a.g);
+  scorers.forEach(x=>{
+    s += `<tr><td>${x.p}</td><td>${x.g}</td></tr>`;
+  });
+  scorersTable.innerHTML = s;
+
+  // Prestupy
+  let t = "";
+  transfers.forEach(x=>{
+    t += `<tr><td>${x.p}</td><td>${x.f}</td><td>${x.t}</td></tr>`;
+  });
+  transfersTable.innerHTML = t;
+
+  // Ligová tabuľka
+  renderLeagueTable();
+}
+
+function addMatch(){
+  let t1 = team1.value;
+  let t2 = team2.value;
+  let s1 = parseInt(score1.value);
+  let s2 = parseInt(score2.value);
+  let w = "Remíza";
+  if(s1 > s2) w = t1;
+  if(s2 > s1) w = t2;
+  matches.push({t1,t2,s1,s2,w});
+  save();
+  render();
+}
+
+function addScorer(){
+  scorers.push({p:scorer.value, g:parseInt(goals.value)});
+  save();
+  render();
+}
+
+function addTransfer(){
+  transfers.push({p:player.value, f:from.value, t:to.value});
+  save();
+  render();
+}
+
+// Funkcia na automatickú ligovú tabuľku
+function renderLeagueTable(){
+  const teams = {};
+  matches.forEach(m=>{
+    if(!teams[m.t1]) teams[m.t1] = {Z:0,V:0,P:0,Gf:0,Ga:0};
+    if(!teams[m.t2]) teams[m.t2] = {Z:0,V:0,P:0,Gf:0,Ga:0};
+
+    teams[m.t1].Z++; teams[m.t2].Z++;
+    teams[m.t1].Gf += m.s1; teams[m.t1].Ga += m.s2;
+    teams[m.t2].Gf += m.s2; teams[m.t2].Ga += m.s1;
+
+    if(m.w === m.t1){ teams[m.t1].V++; teams[m.t2].P++; }
+    else if(m.w === m.t2){ teams[m.t2].V++; teams[m.t1].P++; }
+  });
+
+  let tableHtml = "<tr><th>Tím</th><th>Z</th><th>V</th><th>P</th><th>Góly</th><th>Body</th></tr>";
+  Object.keys(teams).sort((a,b)=>{
+    const pa = teams[a].V*3 + 0; 
+    const pb = teams[b].V*3 + 0; 
+    return pb - pa;
+  }).forEach(t=>{
+    const data = teams[t];
+    tableHtml += `<tr><td>${t}</td><td>${data.Z}</td><td>${data.V}</td><td>${data.P}</td><td>${data.Gf}:${data.Ga}</td><td>${data.V*3}</td></tr>`;
+  });
+
+  document.getElementById("leagueTable").innerHTML = tableHtml;
+}
+
+render();
+
+</script>
+<script>
+
+let matches = [
+  {t1:"FK Častkovský Kapri", s1:3, t2:"FC Častkovské Delá", s2:5, w:"FC Častkovské Delá"},
+  {t1:"FK Častkovský Kapri", s1:3, t2:"Florbal Team", s2:4, w:"Florbal Team"},
+  {t1:"FC Častkovské Delá", s1:3, t2:"Florbal Team", s2:5, w:"Florbal Team"}
+];
+
+let scorers = []; // môžeš doplniť neskôr
+let transfers = []; // môžeš doplniť neskôr
+
+function save(){
+  localStorage.setItem("matches", JSON.stringify(matches));
+  localStorage.setItem("scorers", JSON.stringify(scorers));
+  localStorage.setItem("transfers", JSON.stringify(transfers));
+}
+
+const matchesTable = document.getElementById("matches");
+const scorersTable = document.getElementById("scorers");
+const transfersTable = document.getElementById("transfers");
+
+function render(){
+
+  // Zápasy
+  let m = "";
+  matches.forEach(x=>{
+    m += `<tr><td>${x.t1}</td><td>${x.s1}:${x.s2}</td><td>${x.t2}</td><td>${x.w}</td></tr>`;
+  });
+  matchesTable.innerHTML = m;
+
+  // Top strelci
+  let s = "";
+  scorers.sort((a,b)=>b.g - a.g);
+  scorers.forEach(x=>{
+    s += `<tr><td>${x.p}</td><td>${x.g}</td></tr>`;
+  });
+  scorersTable.innerHTML = s;
+
+  // Prestupy
+  let t = "";
+  transfers.forEach(x=>{
+    t += `<tr><td>${x.p}</td><td>${x.f}</td><td>${x.t}</td></tr>`;
+  });
+  transfersTable.innerHTML = t;
+
+  // Ligová tabuľka
+  renderLeagueTable();
+}
+
+function addMatch(){
+  let t1 = team1.value;
+  let t2 = team2.value;
+  let s1 = parseInt(score1.value);
+  let s2 = parseInt(score2.value);
+  let w = "Remíza";
+  if(s1 > s2) w = t1;
+  if(s2 > s1) w = t2;
+  matches.push({t1,t2,s1,s2,w});
+  save();
+  render();
+}
+
+function addScorer(){
+  scorers.push({p:scorer.value, g:parseInt(goals.value)});
+  save();
+  render();
+}
+
+function addTransfer(){
+  transfers.push({p:player.value, f:from.value, t:to.value});
+  save();
+  render();
+}
+
+// Funkcia na automatickú ligovú tabuľku
+function renderLeagueTable(){
+  const teams = {};
+  matches.forEach(m=>{
+    if(!teams[m.t1]) teams[m.t1] = {Z:0,V:0,P:0,Gf:0,Ga:0};
+    if(!teams[m.t2]) teams[m.t2] = {Z:0,V:0,P:0,Gf:0,Ga:0};
+
+    teams[m.t1].Z++; teams[m.t2].Z++;
+    teams[m.t1].Gf += m.s1; teams[m.t1].Ga += m.s2;
+    teams[m.t2].Gf += m.s2; teams[m.t2].Ga += m.s1;
+
+    if(m.w === m.t1){ teams[m.t1].V++; teams[m.t2].P++; }
+    else if(m.w === m.t2){ teams[m.t2].V++; teams[m.t1].P++; }
+  });
+
+  let tableHtml = "<tr><th>Tím</th><th>Z</th><th>V</th><th>P</th><th>Góly</th><th>Body</th></tr>";
+  Object.keys(teams).sort((a,b)=>{
+    const pa = teams[a].V*3 + 0; 
+    const pb = teams[b].V*3 + 0; 
+    return pb - pa;
+  }).forEach(t=>{
+    const data = teams[t];
+    tableHtml += `<tr><td>${t}</td><td>${data.Z}</td><td>${data.V}</td><td>${data.P}</td><td>${data.Gf}:${data.Ga}</td><td>${data.V*3}</td></tr>`;
+  });
+
+  document.getElementById("leagueTable").innerHTML = tableHtml;
+}
+
+render();
+
+</script>
