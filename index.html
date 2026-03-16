@@ -1,0 +1,120 @@
+<script>
+// --- Zápasy ---
+let matches = [
+  {t1:"FK Častkovský Kapri", s1:3, t2:"FC Častkovské Delá", s2:5, w:"FC Častkovské Delá"},
+  {t1:"FK Častkovský Kapri", s1:3, t2:"Florbal Team", s2:4, w:"Florbal Team"},
+  {t1:"FC Častkovské Delá", s1:3, t2:"Florbal Team", s2:5, w:"Florbal Team"}
+];
+
+// --- Top strelci ---
+let scorers = [
+  {p:"Roman Kubo", g:4},
+  {p:"Lukáš Trokan", g:4},
+  {p:"David Drimaj", g:3},
+  {p:"Jakub Durec", g:2},
+  {p:"Matej Jambor", g:0}
+];
+
+let transfers = [];
+
+function save() {
+  localStorage.setItem("matches", JSON.stringify(matches));
+  localStorage.setItem("scorers", JSON.stringify(scorers));
+  localStorage.setItem("transfers", JSON.stringify(transfers));
+}
+
+function render() {
+  renderMatches();
+  renderScorers();
+  renderTransfers();
+  renderStandings();
+}
+
+function renderMatches() {
+  let m = "";
+  matches.forEach(x=>{
+    m+=`<tr><td>${x.t1}</td><td>${x.s1}:${x.s2}</td><td>${x.t2}</td><td>${x.w}</td></tr>`;
+  });
+  document.getElementById("matches").innerHTML = m;
+}
+
+function renderScorers() {
+  let s = "";
+  scorers.sort((a,b)=>b.g - a.g);
+  scorers.forEach(x=>{
+    s+=`<tr><td>${x.p}</td><td>${x.g}</td></tr>`;
+  });
+  document.getElementById("scorers").innerHTML = s;
+}
+
+function renderTransfers() {
+  let t = "";
+  transfers.forEach(x=>{
+    t+=`<tr><td>${x.p}</td><td>${x.f}</td><td>${x.t}</td></tr>`;
+  });
+  document.getElementById("transfers").innerHTML = t;
+}
+
+// --- Tabuľka poradia ---
+function renderStandings() {
+  let table = {};
+
+  matches.forEach(m=>{
+    if(!table[m.t1]) table[m.t1]={z:0,v:0,p:0};
+    if(!table[m.t2]) table[m.t2]={z:0,v:0,p:0};
+
+    table[m.t1].z++;
+    table[m.t2].z++;
+
+    if(m.w === m.t1) { table[m.t1].v++; table[m.t2].p++; }
+    else if(m.w === m.t2) { table[m.t2].v++; table[m.t1].p++; }
+  });
+
+  let arr = Object.entries(table);
+  arr.sort((a,b)=>b[1].v - a[1].v);
+
+  let html = "";
+  arr.forEach((t,i)=>{
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${t[0]}</td>
+      <td>${t[1].z}</td>
+      <td>${t[1].v}</td>
+      <td>${t[1].p}</td>
+    </tr>`;
+  });
+
+  document.getElementById("standings").innerHTML = html;
+}
+
+// --- Pridanie zápasu ---
+function addMatch() {
+  let t1 = document.getElementById("team1").value;
+  let t2 = document.getElementById("team2").value;
+  let s1 = parseInt(document.getElementById("score1").value);
+  let s2 = parseInt(document.getElementById("score2").value);
+
+  let w = "Remíza"; 
+  if(s1 > s2) w = t1;
+  if(s2 > s1) w = t2;
+
+  matches.push({t1,s1,t2,s2,w});
+  save(); render();
+}
+
+// --- Pridanie strelca ---
+function addScorer() {
+  scorers.push({p:document.getElementById("scorer").value, g:parseInt(document.getElementById("goals").value)});
+  save(); render();
+}
+
+// --- Pridanie prestupu ---
+function addTransfer() {
+  transfers.push({p:document.getElementById("player").value, f:document.getElementById("from").value, t:document.getElementById("to").value});
+  save(); render();
+}
+
+// Vymaž staré zápasy z localStorage, aby sa načítali tieto predvolené
+localStorage.removeItem("matches");
+render();
+</script>
